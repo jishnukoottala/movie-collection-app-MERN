@@ -11,11 +11,9 @@ import {
     Center,
     Text,
 } from '@chakra-ui/react'
-import service from '../service/service'
 import axios from 'axios'
 import { MovieTile } from './MovieTile'
 import { Loader } from './Loader'
-import { ServiceUnavailable } from 'http-errors'
 
 export const Home = () => {
     const [movies, setMovies] = useState([])
@@ -33,12 +31,14 @@ export const Home = () => {
                 errorMessage: '',
             })
 
-            // const options = {
-            //     headers: {
-            //         Authorization: `Bearer ${localStorage.getItem('token')}`,
-            //     },
-            // }
-            const res = await service.get('/api/v1/movies')
+            const authToken = localStorage.getItem('token')
+
+            const axiosAuth = axios.create({
+                headers: {
+                    Authorization: authToken ? `Bearer ${authToken}` : null,
+                },
+            })
+            const res = await axiosAuth.get('/api/v1/movies')
             console.log(res)
             if (res?.data?.success) {
                 setMovies(res.data.data)
