@@ -1,7 +1,6 @@
 import React from 'react'
 import { Loader } from '../components/Loader'
 import axios from 'axios'
-import service from '../service/service'
 import {
     useToast,
     Flex,
@@ -111,7 +110,15 @@ function AuthProvider(props) {
     } // register the user
     const signOut = async () => {
         try {
-            const res = await service.post('/api/v1/user/signout')
+            const authToken = localStorage.getItem('token')
+
+            const axiosAuth = axios.create({
+                headers: {
+                    Authorization: authToken ? `Bearer ${authToken}` : null,
+                },
+            })
+
+            const res = await axiosAuth.post('/api/v1/user/signout')
 
             if (res.status === 200) {
                 localStorage.removeItem('token')
