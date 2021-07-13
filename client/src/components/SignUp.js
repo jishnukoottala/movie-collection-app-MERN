@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
     Flex,
     Box,
@@ -13,20 +13,102 @@ import {
     Link,
 } from '@chakra-ui/react'
 import { Link as RouterLink, Redirect } from 'react-router-dom'
-import { useAuth } from "../auth/Authcontext"
+import { useAuth } from '../auth/Authcontext'
 
 export const SignUp = () => {
+    const { isAuthenticated, signUp, authError } = useAuth()
 
+    const [name, setName] = useState('')
+    const [nameError, setNameError] = useState('')
+    const [isNameValid, setIsNameValid] = useState(true)
 
-    const { isAuthenticated, signIn } = useAuth()
+    const [username, setUsername] = useState('')
+    const [usernameError, setUsernameError] = useState(undefined)
+    const [isUsernameValid, setIsUsernamevalid] = useState(true)
 
+    const [password, setPassword] = useState('')
+    const [passwordError, setPasswordError] = useState(undefined)
+    const [isPasswordValid, setIsPasswordvalid] = useState(true)
 
-    const onSubmit = ()=> {
-        
+    const [confirmPassword, setConfirmPassword] = useState('')
+    const [confirmpasswordError, setconfirmPasswordError] = useState(undefined)
+    const [isConfirmPasswordValid, setIsConfirmPasswordvalid] = useState(true)
+
+    const onPasswordChange = (e) => {
+        setPassword(e.target.value)
+        setPasswordError(undefined)
+        setIsPasswordvalid(true)
     }
 
-    if(isAuthenticated){
-        <Redirect to="/" />
+    const onConfirmPasswordChange = (e) => {
+        setConfirmPassword(e.target.value)
+        setconfirmPasswordError(undefined)
+        setIsConfirmPasswordvalid(true)
+    }
+
+    const onNameChange = (e) => {
+        setName(e.target.value)
+        setNameError(undefined)
+        setIsNameValid(true)
+    }
+
+    const onUsernameChange = (e) => {
+        setUsername(e.target.value)
+        setUsernameError(undefined)
+        setIsUsernamevalid(true)
+    }
+
+    const checkValidations = () => {
+        let validationPassed = false
+
+        if (name === '') {
+            setNameError('Name cannot be empty')
+            setIsNameValid(false)
+        }
+        if (username === '') {
+            setUsernameError('Username cannot be empty')
+            setIsUsernamevalid(false)
+        } else {
+            let regexEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+            if (username.match(regexEmail)) {
+                console.log('test pass --- ', username)
+                setIsUsernamevalid(true)
+                validationPassed = true
+            } else {
+                console.log('in valid ')
+                setUsernameError('Username must be a valid email')
+                setIsUsernamevalid(false)
+            }
+        }
+        if (password === '') {
+            setPasswordError('Password cannot be empty')
+            setIsPasswordvalid(false)
+        }
+        if (confirmPassword === '') {
+            setconfirmPasswordError('Please repeat the password')
+            setIsConfirmPasswordvalid(false)
+        } else if (confirmPassword !== password) {
+            setconfirmPasswordError('Passwords do not match')
+            setIsConfirmPasswordvalid(false)
+        }
+
+        return validationPassed
+    }
+
+    const onSubmit = () => {
+        const validationsPassed = checkValidations()
+        if (validationsPassed) {
+            signUp(username, password, name)
+            if (authError) {
+                console.log('error ')
+            }
+        }
+    }
+
+    console.log('authError', authError)
+
+    if (isAuthenticated) {
+        return <Redirect to="/" />
     }
     return (
         <Flex minHeight="90vh" backgroundColor="#edf2f4">
@@ -52,30 +134,54 @@ export const SignUp = () => {
                 >
                     Sign Up
                 </Heading>
-                <FormControl isInvalid={false} isRequired mb={4}>
-                    <FormLabel htmlFor="name"> Name</FormLabel>
-                    <Input id="name" placeholder="Full Name" />
-                    <FormErrorMessage>Error message</FormErrorMessage>
+                <FormControl isInvalid={!isNameValid} isRequired mb={4}>
+                    <FormLabel htmlFor="fullname"> Name</FormLabel>
+                    <Input
+                        id="fullname"
+                        placeholder="Full Name"
+                        name={name}
+                        onChange={onNameChange}
+                    />
+                    <FormErrorMessage>{nameError}</FormErrorMessage>
                 </FormControl>
 
-                <FormControl isInvalid={false} isRequired mb={4}>
-                    <FormLabel htmlFor="name"> Email</FormLabel>
-                    <Input id="name" placeholder="email" />
-                    <FormErrorMessage>Error message</FormErrorMessage>
+                <FormControl isInvalid={!isUsernameValid} isRequired mb={4}>
+                    <FormLabel htmlFor="username"> Email</FormLabel>
+                    <Input
+                        id="username"
+                        placeholder="email"
+                        value={username}
+                        onChange={onUsernameChange}
+                    />
+                    <FormErrorMessage>{usernameError}</FormErrorMessage>
                 </FormControl>
 
-                <FormControl isInvalid={false} isRequired mb={4}>
-                    <FormLabel htmlFor="name">Password</FormLabel>
-                    <Input id="name" placeholder="password" />
-                    <FormErrorMessage>Error message</FormErrorMessage>
+                <FormControl isInvalid={!isPasswordValid} isRequired mb={4}>
+                    <FormLabel htmlFor="password">Password</FormLabel>
+                    <Input
+                        id="password"
+                        placeholder="password"
+                        value={password}
+                        onChange={onPasswordChange}
+                        type="password"
+                    />
+                    <FormErrorMessage>{passwordError}</FormErrorMessage>
                 </FormControl>
-                <FormControl isInvalid={false} isRequired>
-                    <FormLabel htmlFor="name">Repeat Password</FormLabel>
-                    <Input id="name" placeholder="repeat password" />
-                    <FormErrorMessage>Error message</FormErrorMessage>
+                <FormControl isInvalid={!isConfirmPasswordValid} isRequired>
+                    <FormLabel htmlFor="confirmpassword">
+                        Repeat Password
+                    </FormLabel>
+                    <Input
+                        id="confirmpassword"
+                        type="password"
+                        placeholder="repeat password"
+                        value={confirmPassword}
+                        onChange={onConfirmPasswordChange}
+                    />
+                    <FormErrorMessage>{confirmpasswordError}</FormErrorMessage>
                 </FormControl>
                 <Box width="100%" textAlign="center" mt={16}>
-                    <Button colorScheme="telegram" size="lg">
+                    <Button colorScheme="telegram" size="lg" onClick={onSubmit}>
                         Sign Up
                     </Button>
                 </Box>
