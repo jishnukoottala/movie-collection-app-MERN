@@ -49,6 +49,14 @@ export const MovieForm = ({
     const [moviedata, setMovieData] = useState(initData)
     console.log('moviedata', moviedata)
 
+    const authToken = localStorage.getItem('token')
+
+    const axiosAuth = axios.create({
+        headers: {
+            Authorization: authToken ? `Bearer ${authToken}` : null,
+        },
+    })
+
     const callSuccessToast = (message = 'Movie Added Successfully') => {
         toast({
             position: 'bottom-left',
@@ -76,12 +84,12 @@ export const MovieForm = ({
             const newmoviedata = { ...moviedata }
             delete newmoviedata._id
             const res = isEdit
-                ? await axios.patch(
+                ? await axiosAuth.patch(
                       `/api/v1/movies/${moviedata._id}`,
                       newmoviedata,
                       config
                   )
-                : await axios.post('/api/v1/movies', moviedata, config)
+                : await axiosAuth.post('/api/v1/movies', moviedata, config)
 
             console.log('res is ', res)
             if (res.status === 201) {
