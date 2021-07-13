@@ -2,6 +2,13 @@ import React from 'react'
 import { Loader } from '../components/Loader'
 import axios from 'axios'
 import service from '../service/service'
+import {
+    useToast,
+    Flex,
+    Alert,
+    AlertDescription,
+    AlertIcon,
+} from '@chakra-ui/react'
 
 const AuthContext = React.createContext()
 
@@ -13,7 +20,7 @@ function AuthProvider(props) {
     // But we post-pone rendering any of the children until after we've determined
     // whether or not we have a user token and if we do, then we render a spinner
     // while we go retrieve that user's information.
-
+    const toast = useToast()
     const [authData, setAuthData] = React.useState({
         loading: false,
         error: null,
@@ -61,7 +68,47 @@ function AuthProvider(props) {
     const isAuthenticated = authData.user !== null
     const authError = authData.error
     const user = authData.user
-    const signUp = () => {} // register the user
+    const signUp = async (email, password, name) => {
+        try {
+            setAuthData({
+                loading: true,
+                error: undefined,
+            })
+            const userObj = { email, password, name }
+            const res = await axios.post('/api/v1/user', userObj)
+            console.log(res)
+            if (res?.data?.user) {
+                setAuthData({
+                    loading: false,
+                    error: undefined,
+                    user: res.data.user,
+                })
+                localStorage.setItem('token', res.data.token)
+                localStorage.setItem('user', JSON.stringify(res.data.user))
+                toast({
+                    position: 'bottom-left',
+                    variant: 'left-accent',
+                    render: () => (
+                        <Flex>
+                            <Alert status="success">
+                                <AlertIcon />
+
+                                <AlertDescription>
+                                    Signed Up Successfully!!!
+                                </AlertDescription>
+                            </Alert>
+                        </Flex>
+                    ),
+                })
+            }
+        } catch (err) {
+            console.log('is it in the catch')
+            setAuthData({
+                error: err.toString(),
+                user: null,
+            })
+        }
+    } // register the user
     const signOut = async () => {
         try {
             const res = await service.post('/api/v1/user/signout')
