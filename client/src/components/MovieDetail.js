@@ -41,7 +41,14 @@ export const MovieDetail = (props) => {
 
     const onConfirmDelete = async () => {
         try {
-            const res = await axios.delete(`/api/v1/movies/${id}`)
+            const authToken = localStorage.getItem('token')
+
+            const axiosAuth = axios.create({
+                headers: {
+                    Authorization: authToken ? `Bearer ${authToken}` : null,
+                },
+            })
+            const res = await axiosAuth.delete(`/api/v1/movies/${id}`)
             const { success } = res.data
             if (success) {
                 toast({
@@ -88,7 +95,14 @@ export const MovieDetail = (props) => {
                 errorMessage: '',
             })
 
-            const res = await axios.get(`/api/v1/movies/${id}`)
+            const authToken = localStorage.getItem('token')
+
+            const axiosAuth = axios.create({
+                headers: {
+                    Authorization: authToken ? `Bearer ${authToken}` : null,
+                },
+            })
+            const res = await axiosAuth.get(`/api/v1/movies/${id}`)
             console.log(res)
             if (res?.data?.success) {
                 setMovie(res.data.data)
