@@ -16,13 +16,7 @@ export const MovieTile = ({
 
     return (
         <Link to={`/movie/${_id}`}>
-            <Flex
-                border="1px solid gray"
-                p={3}
-                borderRadius={4}
-                position="relative"
-                boxShadow="xl"
-            >
+            <Flex p={2} borderRadius={4} position="relative" boxShadow="xl">
                 <Box>
                     {' '}
                     <Image
