@@ -5,11 +5,11 @@ import {
     Button,
     Grid,
     Flex,
-    Image,
-    Heading,
-    Spinner,
     Center,
-    Text,
+    Alert,
+    AlertIcon,
+    AlertTitle,
+    AlertDescription,
 } from '@chakra-ui/react'
 import axios from 'axios'
 import { MovieTile } from './MovieTile'
@@ -39,7 +39,7 @@ export const Home = () => {
                 },
             })
             const res = await axiosAuth.get('/api/v1/movies')
-            console.log(res)
+
             if (res?.data?.success) {
                 setMovies(res.data.data)
                 setLoading(false)
@@ -57,6 +57,18 @@ export const Home = () => {
         getMovies()
         return () => {}
     }, [])
+
+    if (error.showError) {
+        return (
+            <Flex>
+                <Alert status="error">
+                    <AlertIcon />
+                    <AlertTitle mr={2}>Error!</AlertTitle>
+                    <AlertDescription>{error.errorMessage}</AlertDescription>
+                </Alert>
+            </Flex>
+        )
+    }
     return (
         <Flex flexDirection="column">
             <Link to="/create">
