@@ -196,10 +196,10 @@ export const MovieForm = ({
                 </Box>
                 <Box mb={4}>
                     <FormLabel htmlFor="trailerUrl" mb={1}>
-                        Trailer URL
+                        Trailer: (youtube id)
                     </FormLabel>
                     <Input
-                        placeholder="https://www.youtube.com/watch?v=Km-HXDB3sPg"
+                        placeholder="Km-HXDB3sPg"
                         value={moviedata.trailerUrl}
                         onChange={handleChange}
                         name="trailerUrl"
