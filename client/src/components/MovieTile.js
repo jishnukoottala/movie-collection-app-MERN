@@ -26,7 +26,11 @@ export const MovieTile = ({
                 <Box>
                     {' '}
                     <Image
-                        src={coverImage}
+                        src={
+                            coverImage !== ''
+                                ? coverImage
+                                : 'https://d32qys9a6wm9no.cloudfront.net/images/movies/poster/500x735.png'
+                        }
                         alt="movie_poster"
                         width={183}
                         height={273}

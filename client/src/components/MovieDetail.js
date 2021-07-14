@@ -143,7 +143,11 @@ export const MovieDetail = (props) => {
                     <Flex justifyContent="center" mb={3}>
                         {' '}
                         <Image
-                            src={movie.coverImage}
+                            src={
+                                movie.coverImage !== ''
+                                    ? movie.coverImage
+                                    : 'https://d32qys9a6wm9no.cloudfront.net/images/movies/poster/500x735.png'
+                            }
                             alt="movie_poster"
                             width="60%"
                             height="auto"
