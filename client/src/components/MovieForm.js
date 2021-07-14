@@ -4,6 +4,8 @@ import {
     Flex,
     Box,
     Button,
+    FormControl,
+    FormLabel,
     Text,
     Input,
     Textarea,
@@ -18,6 +20,7 @@ import {
     Stack,
     Wrap,
     SliderThumb,
+    Switch,
     Radio,
     RadioGroup,
     Center,
@@ -28,6 +31,7 @@ import {
     useToast,
 } from '@chakra-ui/react'
 import axios from 'axios'
+import { useAuth } from '../auth/Authcontext'
 
 const INITIAL_MOVIE_DATA = {
     title: '',
@@ -44,6 +48,7 @@ export const MovieForm = ({
     afterEditCallBack = () => {},
 }) => {
     const toast = useToast()
+    const { user } = useAuth()
     const [submitted, setSubmitted] = useState(false)
 
     const [moviedata, setMovieData] = useState(initData)
@@ -81,6 +86,7 @@ export const MovieForm = ({
                 },
             }
 
+            console.log('moviedata', moviedata)
             const newmoviedata = { ...moviedata }
             delete newmoviedata._id
             const res = isEdit
@@ -122,6 +128,13 @@ export const MovieForm = ({
         setMovieData({ ...moviedata, [event.target.name]: event.target.value })
     }
 
+    const trendChange = (event) => {
+        setMovieData({
+            ...moviedata,
+            [event.target.name]: event.target.checked,
+        })
+    }
+
     const onReleasedYearChange = (_, value) => {
         setMovieData({ ...moviedata, releasedYear: value })
     }
@@ -138,26 +151,28 @@ export const MovieForm = ({
         <Container px={[4, 0]}>
             <Flex direction="column" pt={4}>
                 <Box mb={4}>
-                    <Text mb={1} as="label">
+                    <FormLabel htmlFor="title" mb={1}>
                         Movie Title
-                    </Text>
+                    </FormLabel>
                     <Input
                         placeholder="Pearl Harbour"
                         value={moviedata.title}
                         name="title"
+                        id="title"
                         onChange={handleChange}
                     />
                 </Box>
                 <Box mb={4}>
-                    <Text mb={1} as="label">
+                    <FormLabel htmlFor="releasedYear" mb={1}>
                         Released Year : {moviedata.releasedYear}
-                    </Text>
+                    </FormLabel>
                     <NumberInput
                         value={moviedata.releasedYear}
                         onChange={onReleasedYearChange}
                         defaultValue={2021}
                         min={1960}
                         max={2022}
+                        id="releasedYear"
                         name="releasedYear"
                     >
                         <NumberInputField />
@@ -168,20 +183,57 @@ export const MovieForm = ({
                     </NumberInput>
                 </Box>
                 <Box mb={4}>
-                    <Text mb={1} as="label">
-                        Cover URL
-                    </Text>
+                    <FormLabel htmlFor="coverurl" mb={1}>
+                        Movie Cover/Poster URL
+                    </FormLabel>
                     <Input
                         placeholder="https://www.picsum.photos/5"
                         value={moviedata.coverImage}
                         onChange={handleChange}
                         name="coverImage"
+                        id="coverurl"
                     />
                 </Box>
                 <Box mb={4}>
-                    <Text mb={1} as="label">
+                    <FormLabel htmlFor="trailerUrl" mb={1}>
+                        Trailer URL
+                    </FormLabel>
+                    <Input
+                        placeholder="https://www.youtube.com/watch?v=Km-HXDB3sPg"
+                        value={moviedata.trailerUrl}
+                        onChange={handleChange}
+                        name="trailerUrl"
+                        id="trailerUrl"
+                    />
+                </Box>
+                <Box mb={4}>
+                    <FormLabel htmlFor="director" mb={1}>
+                        Director
+                    </FormLabel>
+                    <Input
+                        placeholder="Movie Director"
+                        value={moviedata.director}
+                        name="director"
+                        id="director"
+                        onChange={handleChange}
+                    />
+                </Box>
+                <Box mb={4}>
+                    <FormLabel htmlFor="musicDirector" mb={1}>
+                        Music
+                    </FormLabel>
+                    <Input
+                        placeholder="Music Director"
+                        value={moviedata.musicDirector}
+                        name="musicDirector"
+                        id="musicDirector"
+                        onChange={handleChange}
+                    />
+                </Box>
+                <Box mb={4}>
+                    <FormLabel htmlFor="genre" mb={1}>
                         Genre
-                    </Text>
+                    </FormLabel>
                     <RadioGroup
                         onChange={onGenreChange}
                         value={moviedata.genre}
@@ -200,10 +252,11 @@ export const MovieForm = ({
                     </RadioGroup>
                 </Box>
                 <Box mb={4}>
-                    <Text mb={1} as="label">
+                    <FormLabel htmlFor="rating" mb={1}>
                         Rating : {moviedata.rating}
-                    </Text>
+                    </FormLabel>
                     <Slider
+                        name="rating"
                         aria-label="Rating"
                         colorScheme="telegram"
                         defaultValue={3}
@@ -219,17 +272,48 @@ export const MovieForm = ({
                     </Slider>
                 </Box>
                 <Box mb={4}>
-                    <Text mb={1} as="label">
+                    <FormLabel htmlFor="review" mb="0">
                         Review
-                    </Text>
+                    </FormLabel>
                     <Textarea
                         value={moviedata.review}
                         onChange={handleChange}
                         placeholder="Your review about the movie"
                         size="sm"
                         name="review"
+                        id="review"
                     />
                 </Box>
+                {user.role === 'admin' && (
+                    <>
+                        <Box mb={4}>
+                            <FormControl display="flex" alignItems="center">
+                                <FormLabel htmlFor="istrending" mb="0">
+                                    Is Trending?
+                                </FormLabel>
+                                <Switch
+                                    id="istrending"
+                                    name="isTrending"
+                                    isChecked={moviedata.isTrending}
+                                    onChange={trendChange}
+                                />
+                            </FormControl>
+                        </Box>
+                        <Box mb={4}>
+                            <FormControl display="flex" alignItems="center">
+                                <FormLabel htmlFor="isUpcoming" mb="0">
+                                    Is Upcoming?
+                                </FormLabel>
+                                <Switch
+                                    id="isUpcoming"
+                                    name="isUpcoming"
+                                    isChecked={moviedata.isUpcoming}
+                                    onChange={trendChange}
+                                />
+                            </FormControl>
+                        </Box>
+                    </>
+                )}
                 <Box mt={3}>
                     <Center>
                         <Button
