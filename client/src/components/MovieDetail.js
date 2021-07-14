@@ -3,6 +3,7 @@ import axios from 'axios'
 import { useParams, useHistory } from 'react-router-dom'
 import { Loader } from './Loader'
 import {
+    AspectRatio,
     Flex,
     Box,
     Image,
@@ -24,6 +25,7 @@ import {
     ModalCloseButton,
 } from '@chakra-ui/react'
 import { MovieForm } from './MovieForm'
+import { useAuth } from '../auth/Authcontext'
 
 export const MovieDetail = (props) => {
     const { isOpen, onOpen, onClose } = useDisclosure()
@@ -36,6 +38,7 @@ export const MovieDetail = (props) => {
     })
 
     const { id } = useParams()
+    const { user } = useAuth()
     const history = useHistory()
     const toast = useToast()
 
@@ -103,7 +106,7 @@ export const MovieDetail = (props) => {
                 },
             })
             const res = await axiosAuth.get(`/api/v1/movies/${id}`)
-            console.log(res)
+
             if (res?.data?.success) {
                 setMovie(res.data.data)
                 setLoading(false)
@@ -121,6 +124,18 @@ export const MovieDetail = (props) => {
         getMovie()
         return () => {}
     }, [])
+
+    if (error.showError) {
+        return (
+            <Flex>
+                <Alert status="error">
+                    <AlertIcon />
+                    <AlertTitle mr={2}>Error!</AlertTitle>
+                    <AlertDescription>{error.errorMessage}</AlertDescription>
+                </Alert>
+            </Flex>
+        )
+    }
 
     if (loading) {
         return (
@@ -166,13 +181,60 @@ export const MovieDetail = (props) => {
                         <Heading as="h3" size="lg" mb={3} textAlign="center">
                             {movie.releasedYear}{' '}
                         </Heading>
+
+                        {movie.trailerUrl && (
+                            <Box my={4} p={[3, 6]}>
+                                <Heading
+                                    as="h5"
+                                    size="lg"
+                                    mb={3}
+                                    textAlign="center"
+                                >
+                                    Trailer{' '}
+                                </Heading>
+
+                                <AspectRatio maxW="100%" maxH={854} ratio={1}>
+                                    <iframe
+                                        title={movie.title}
+                                        src={`https://www.youtube.com/embed/${movie.trailerUrl}`}
+                                        allowFullScreen
+                                    />
+                                </AspectRatio>
+                            </Box>
+                        )}
                         <Text>Genre : {movie.genre}</Text>
                         <Text>Rating : {movie.rating}</Text>
                         <Text>Review : {movie.review}</Text>
+                        <Text>Director : {movie.director}</Text>
+                        <Text>Music : {movie.musicDirector}</Text>
+                        <Text>Cinematography : {movie.cinematography}</Text>
+
                         <Text>
                             Added to Collection on :{' '}
                             {new Date(movie.createdAt).toLocaleDateString()}
                         </Text>
+                        {user.role === 'admin' && (
+                            <>
+                                {movie.isRecommended && (
+                                    <Text>
+                                        Recommended :{' '}
+                                        {movie.isRecommended?.toString()}
+                                    </Text>
+                                )}
+                                {movie.isTrending && (
+                                    <Text>
+                                        Trending : {movie.isTrending.toString()}
+                                    </Text>
+                                )}
+                                <Text>
+                                    Upcoming : {movie.isUpcoming?.toString()}
+                                </Text>
+                                <Text>
+                                    Added by : {movie?.owner?.name} Email :{' '}
+                                    {movie?.owner?.email}
+                                </Text>
+                            </>
+                        )}
                     </Flex>
                     <Flex justifyContent="center" mt={5}>
                         <Button
