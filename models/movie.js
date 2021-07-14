@@ -26,6 +26,38 @@ const movieSchema = new mongoose.Schema({
         type:Date,
         default:Date.now
     },
+    director:{
+        type:String
+    },
+    musicDirector:{
+        type: String
+    },
+    cinematography:{
+        type:String
+    },
+    language:{
+        type:String
+    },
+    availableIn:[String],
+    isTrending:{
+        type:Boolean,
+        default:false,
+    },
+    isRecommended:{
+        type:Boolean,
+        default:false,
+    },
+    isUpcoming:{
+        type:Boolean,
+        default:false,
+    },
+    trailerUrl:{
+        type:String
+    },
+    isClassic:{
+        type:Boolean,
+        default:false
+    },
     owner: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
