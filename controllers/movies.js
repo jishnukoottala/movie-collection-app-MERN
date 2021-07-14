@@ -55,7 +55,13 @@ exports.getMovies = async (req,res,next)=> {
 
         const movies = isAdmin ? await Movie.find().populate({
           path:'owner',
-          select:'name email'
+          select:'name email',
+          match,
+          options: {
+            limit: parseInt(req.query.limit),
+            skip: parseInt(req.query.skip),
+            sort
+          }
         }) : []
 
       const resultData = isAdmin ? movies:  req.user.movies;
@@ -100,9 +106,13 @@ exports.getTrendingMovies = async (req,res,next) => {
 
 exports.getMovie = async (req,res,next)=> {
     const _id = req.params.id
+    const isAdmin = req.user.role === "admin"
 
     try {
-       const movie = await Movie.findOne({_id,owner: req.user._id})
+       const movie = isAdmin ? await Movie.findOne({_id}).populate({
+        path:'owner',
+        select:'name email'
+      }) :await Movie.findOne({_id,owner: req.user._id})
      
       if (!movie) {
         return res.status(404).send()
