@@ -39,7 +39,7 @@ function AuthProvider(props) {
             })
             const userObj = { email, password }
             const res = await axios.post('/api/v1/user/signin', userObj)
-            console.log(res)
+
             if (res?.data?.user) {
                 setAuthData({
                     loading: false,
@@ -57,7 +57,6 @@ function AuthProvider(props) {
                 })
             }
         } catch (err) {
-            console.log('is it in the catch')
             setAuthData({
                 error: err.toString(),
                 user: null,
@@ -75,7 +74,6 @@ function AuthProvider(props) {
             })
             const userObj = { email, password, name }
             const res = await axios.post('/api/v1/user', userObj)
-            console.log(res)
             if (res?.data?.user) {
                 setAuthData({
                     loading: false,
@@ -101,7 +99,6 @@ function AuthProvider(props) {
                 })
             }
         } catch (err) {
-            console.log('is it in the catch')
             setAuthData({
                 error: err.toString(),
                 user: null,
