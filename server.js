@@ -10,6 +10,7 @@ dotenv.config({ path: './.env' });
 connectDB();
 
 const movies = require('./routes/movies');
+const trending = require("./routes/trending")
 const user = require("./routes/user")
 
 const app = express();
@@ -21,6 +22,7 @@ if(process.env.NODE_ENV === 'development') {
 }
 
 app.use('/api/v1/movies', movies);
+app.use('/api/v1/trending', trending);
 app.use("/api/v1/user",user)
 
 if(process.env.NODE_ENV === 'production') {
