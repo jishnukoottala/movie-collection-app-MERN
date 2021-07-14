@@ -3,10 +3,15 @@ const Movie = require("../models/movie");
 
 exports.addMovie = async  (req,res, next)=>{
     try {
-        const { title, releasedYear,review,rating,coverImage, genre } = req.body;
-        console.log("title",title)
+        
+        const movieObj = req.body
+        console.log("movie object ",movieObj)
+        if(req.user.role!=="admin"){
+          delete movieObj.isRecommended;
+          delete movieObj.isTrending;
+        }
     
-        const movie = await Movie.create({...req.body, owner: req.user._id});
+        const movie = await Movie.create({...movieObj, owner: req.user._id});
       
         return res.status(201).json({
           success: true,
@@ -23,7 +28,7 @@ exports.addMovie = async  (req,res, next)=>{
         } else {
           return res.status(500).json({
             success: false,
-            error: 'Server Error'
+            error: 'Server Error'+err.toString()
           });
         }
       }
@@ -33,9 +38,10 @@ exports.addMovie = async  (req,res, next)=>{
 exports.getMovies = async (req,res,next)=> {
     try {
 
+      const isAdmin = req.user.role === "admin"
         const match = {}
         const sort = {}
-        await req.user
+        !isAdmin && await req.user
         .populate({
           path: 'movies',
           match,
@@ -46,7 +52,22 @@ exports.getMovies = async (req,res,next)=> {
           }
         })
         .execPopulate()
-      res.status(200).send({ data: req.user.movies, success: true})
+
+        const movies = isAdmin ? await Movie.find().populate({
+          path:'owner',
+          select:'name email'
+        }) : []
+
+      const resultData = isAdmin ? movies:  req.user.movies;
+      if(movies.length==0 && isAdmin){
+        res.status(204).send({ data: [], success: true})
+        return;
+      }
+      if(req.user.movies && req.user.movies.length==0 && !isAdmin){
+        res.status(204).send({ data: [], success: true})
+        return;
+      }
+      return res.status(200).send({ data: resultData, success: true});
         // const movies = await Movie.find();
     
         // return res.status(200).json({
@@ -57,15 +78,28 @@ exports.getMovies = async (req,res,next)=> {
       } catch (err) {
         return res.status(500).json({
           success: false,
-          error: 'Server Error'
+          error: 'Server Error'+err.toString()
         });
       }
 }
 
+exports.getTrendingMovies = async (req,res,next) => {
+  try {
+    const trendingMovies = await Movie.find().or([{ isTrending: true}, { isRecommended: true},{ isUpcoming: true}]).limit(3);
+    return res.status(200).json({
+      success: true,
+      data: trendingMovies
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'+err.toString()
+    });
+  }
+}
+
 exports.getMovie = async (req,res,next)=> {
     const _id = req.params.id
-    console.log("inside get movie  -",_id)
-    debugger
 
     try {
        const movie = await Movie.findOne({_id,owner: req.user._id})
