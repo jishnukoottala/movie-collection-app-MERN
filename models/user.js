@@ -29,6 +29,10 @@ const userSchema = new mongoose.Schema({
     trim: true,
     minLength: 7
   },
+  role:{
+    type:String,
+    default:"user"
+  },
   tokens: [
     {
       token: {
@@ -59,7 +63,7 @@ userSchema.methods.toJSON = function () {
 userSchema.methods.generateAuthToken = async function () {
   const user = this
   // generate a json web token
-  const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET)
+  const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET,{ expiresIn: "1d"})
   user.tokens = user.tokens.concat({ token })
   await user.save()
   return token
