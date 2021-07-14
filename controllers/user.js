@@ -18,11 +18,9 @@ module.exports.signUp = async(req,res,next)=>{
 
 
 module.exports.signIn = async(req,res,next)=>{
-    console.log("enter signin",req.body.email)
 
     try {
         const {user} = await User.findByCredentials(req.body.email, req.body.password)
-        console.log("user", user)
         if(!user){
           res.status(204).send({error: "Invalid credentials"})
           return
