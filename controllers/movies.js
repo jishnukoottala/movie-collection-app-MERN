@@ -91,7 +91,10 @@ exports.getMovies = async (req,res,next)=> {
 
 exports.getTrendingMovies = async (req,res,next) => {
   try {
-    const trendingMovies = await Movie.find().or([{ isTrending: true}, { isRecommended: true},{ isUpcoming: true}]).limit(3);
+   // const trendingMovies = await Movie.find().or([{ isTrending: true}, { isRecommended: true},{ isUpcoming: true}]).limit(3);
+   const trendingMovies = await Movie.find({
+     $or:[{ isTrending: true},{ isUpcoming: true}]
+   }).limit(6);
     return res.status(200).json({
       success: true,
       data: trendingMovies
